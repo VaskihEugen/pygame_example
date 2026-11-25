@@ -3,33 +3,28 @@ import pygame
 pygame.init()
 WIDTH, HEIGHT = 500, 500
 win = pygame.display.set_mode((WIDTH, HEIGHT))
-win.fill((0, 0, 0))
-x, y = 200, HEIGHT - 80
-speed = 10
+x, y = 250, 420
+width, height = 60, 71
+speed = 5
 bound = 5
 isJump = False
 g = 10
 JumpCount = g
+animCount = 0
+left, right = True, False
+lastmove = "right"
 
-c2s = 30
-
-clock = pygame.time.Clock()
-
-width, height = 60, 71
-# pygame.draw.rect(win, (0, 0, 255), (x, y, width, height))
-# pygame.display.update()
-
-walkRight = [pygame.image.load('pictures/right_1.png'), pygame.image.load('pictures/right_2.png'),
-             pygame.image.load('pictures/right_3.png'), pygame.image.load('pictures/right_4.png'),
-             pygame.image.load('pictures/right_5.png'), pygame.image.load('pictures/right_6.png')]
-walkLeft = [pygame.image.load('pictures/left_1.png'), pygame.image.load('pictures/left_2.png'),
-            pygame.image.load('pictures/left_3.png'), pygame.image.load('pictures/left_4.png'),
-            pygame.image.load('pictures/left_5.png'), pygame.image.load('pictures/left_6.png')]
+walkRight = [pygame.image.load('pictures/right_1.png'), pygame.image.load('pictures/right_2.png'), pygame.image.load('pictures/right_3.png'),
+             pygame.image.load('pictures/right_4.png'), pygame.image.load('pictures/right_5.png'), pygame.image.load('pictures/right_6.png')]
+walkLeft = [pygame.image.load('pictures/left_1.png'), pygame.image.load('pictures/left_2.png'), pygame.image.load('pictures/left_3.png'),
+            pygame.image.load('pictures/left_4.png'), pygame.image.load('pictures/left_5.png'), pygame.image.load('pictures/left_6.png')]
 playerStand = pygame.image.load('pictures/idle.png')
 bg = pygame.image.load('pictures/bg.jpg')
-animCount = 0
-left, right = False, False
-lastmove = "left"
+
+c2s = 30
+clock = pygame.time.Clock()
+
+run = True
 
 class Projectile:
     def __init__(self, x, y, radius, color, facing):
@@ -37,16 +32,13 @@ class Projectile:
         self.color = color
         self.facing, self.vel = facing, 8*facing
     def draw(self, win):
-        pygame.draw.circle(win, self.color,
-                           (self.x, self.y), self.radius)
-
+        pygame.draw.circle(win, self.color, (self.x, self.y), self.radius)
 
 def drawWindow():
     global animCount
     win.blit(bg, (0, 0))
     if animCount + 1 >= c2s:
         animCount = 0
-    # Малювання гравця
     if left:
         win.blit(walkLeft[animCount // 5], (x, y))
         animCount += 1
@@ -60,12 +52,13 @@ def drawWindow():
     pygame.display.update()
 
 bullets = []
-run = True
+
 while run:
     clock.tick(c2s)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT] and x > bound:
         x -= speed
@@ -77,11 +70,12 @@ while run:
         lastmove = "right"
     else:
         left, right, animCount = False, False, 0
+
     if not isJump:
-        # if keys[pygame.K_UP] and y > bound:
-        #     y -= speed
-        # if keys[pygame.K_DOWN] and y < HEIGHT - height - bound:
-        #     y += speed
+        if keys[pygame.K_UP] and y > bound:
+            y -= speed
+        if keys[pygame.K_DOWN] and y < HEIGHT - height - bound:
+            y += speed
         if keys[pygame.K_SPACE]:
             isJump = True
     else:
@@ -94,6 +88,7 @@ while run:
         else:
             isJump = False
             JumpCount = g
+
     if keys[pygame.K_f]:
         facing = 1 if lastmove == "right" else -1
         if len(bullets) < 5:
@@ -102,11 +97,13 @@ while run:
             color = (255, 0, 0)
             bullet = Projectile(xb, yb, 5, color, facing)
             bullets.append(bullet)
+
     for bullet in bullets:
         if 0 < bullet.x < WIDTH:
-                bullet.x += bullet.vel
+            bullet.x += bullet.vel
         else:
             bullets.pop(bullets.index(bullet))
+
     drawWindow()
 
 pygame.quit()
